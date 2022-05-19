@@ -1,6 +1,5 @@
 var JSSoup = require("jssoup").default;
 const { CacheIndex } = require("../../../lib/cache");
-const mongoose = require("mongoose");
 
 import { useMongoose } from "@codestra/next-serverless-mongoose";
 
