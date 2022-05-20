@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import mongoose from "mongoose";
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const { publicRuntimeConfig } = getConfig();
 const { name } = publicRuntimeConfig.site;
@@ -13,9 +13,6 @@ type Inputs = {
   search: string;
 };
 
-  
-
-
 const Home = () => {
   const {
     register,
@@ -23,7 +20,7 @@ const Home = () => {
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-  
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     const { search } = data;
     const url = `/search/${search}`;
@@ -32,14 +29,9 @@ const Home = () => {
 
   return (
     <div className="h-screen w-screen bg-stone-800 text-white flex flex-col">
-      <div className="flex">
-        <span className="ml-auto">
-          <ArrowLink className="m-4" href="/account/login">
-            Login
-          </ArrowLink>
-        </span>
-      </div>
-
+      <span className="ml-auto mr-4 mt-4">
+        <ArrowLink href="/saved">Saves</ArrowLink>
+      </span>
       <div className="flex flex-col my-auto text-center">
         <span className="-mt-12 font-bold text-[3rem]">
           <span className="bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text font-extrabold text-transparent">
@@ -47,6 +39,7 @@ const Home = () => {
           </span>
           .com
         </span>
+
         <form onSubmit={handleSubmit(onSubmit)} className="mx-auto">
           <div className="mt-1 relative rounded-md shadow-sm mx-auto">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

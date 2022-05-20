@@ -10,7 +10,9 @@ async function scrapeGumtree(searchQuery: string) {
 
   const soup = new JSSoup(html);
   let results = soup.findAll("a", { class: "user-ad-row-new-design " });
+  //try catch
   results = results.map((result: any) => {
+    try{
     const title = result
       .find("p", {
         class: "user-ad-row-new-design__title",
@@ -34,12 +36,15 @@ async function scrapeGumtree(searchQuery: string) {
       .text.replace("$", "")
       .replace(",", "");
      
-    return { title, description, link, };
+    return { title, description, link, price};
+  } catch {console.log("error")}
   });
 
   results = results.filter((result: any) => {
+    try{
     const price = result.price;
     return !isNaN(parseFloat(price));
+  } catch {return false}
   });
 
   return results.map((result: any) => ({

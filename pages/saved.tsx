@@ -1,160 +1,48 @@
-import getConfig from "next/config";
 import { useState, useEffect } from "react";
-import ArrowLink from "@/components/interactive/links/ArrowLink";
-import { useRouter } from "next/router";
-const { publicRuntimeConfig } = getConfig();
-const { name } = publicRuntimeConfig.site;
-import { useForm, SubmitHandler } from "react-hook-form";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import ArrowLink from "@/components/interactive/links/ArrowLink";
 
-type Inputs = {
-  search: string;
-};
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (res.status !== 200) {
-    throw new Error(data.message);
-  }
-  return data;
-};
-
-const Home = () => {
-  const router = useRouter();
-  const { search } = router.query;
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<Inputs>({
-    defaultValues: {
-      search,
-    },
-  });
-
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    // redirect to /search/query
-    const { search } = data;
-    const url = `/search/${search}`;
-    window.location.href = url;
-  };
-
-  // fetch from api
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [cached, setCached] = useState(false);
-  // fetch
-  const fetchData = async (search: string) => {
-    setLoading(true);
-    setError(false);
-
-    // time how long it takes
-    const start = Date.now();
-    try {
-      const data = await fetcher(`/api/search/${search}`);
-
-      // if the data is less than 1 second then set cached true
-      if (Date.now() - start < 1000) {
-        setCached(true);
-      }
-
-      setResults(data);
-    } catch (e) {
-      setError(true);
-    }
-    setLoading(false);
-  };
+const Saved = () => {
+  const [savedResults, setSavedResults] = useState([]);
 
   useEffect(() => {
-    if (search) {
-      fetchData(search);
-    }
-  }, [search]);
+    setSavedResults(JSON.parse(localStorage.getItem("allEntries")));
+  }, []);
 
   return (
-    <div className="bg-stone-800 text-white flex flex-col">
+    <div className="bg-stone-800 text-white flex flex-col min-h-screen">
       <div className="flex justify-between shadow-lg shadow-black/20">
-        <div className="flex p-4">
-          <span className="font-bold text-[2rem] mr-4">
-            <a href="/">
-              <span className="bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text font-extrabold text-transparent">
-                Steals
-              </span>
-              .com
-            </a>
-          </span>
-          
-          <form onSubmit={handleSubmit(onSubmit)} className="mx-auto">
-            <div className="mt-1 relative rounded-md shadow-sm mx-auto">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-black sm:text-sm">
-                  <FontAwesomeIcon icon={faSearch} />
-                </span>
-              </div>
-
-              <input
-                type="text"
-                id="search"
-                defaultValue={search}
-                {...register("search")}
-                className="focus:ring-indigo-500 h-[2.3rem] mt-0.5 ml-0.5 focus:border-indigo-500 block pl-7 sm:text-sm border-gray-300 rounded-xl text-black w-[30rem]"
-                placeholder="Search for items"
-              />
-            </div>
-          </form>
-        </div>
-      </div>
-      {!(error || showError) ? (
-        <SkeletonTheme borderRadius="2rem" duration={0.9}>
-          {!loading && (
-            <span className="ml-[11.7rem]">
-              Method: {cached ? "cached" : "scraped"}
+        <span className="font-bold text-[2rem] ml-4 pb-4">
+          <a href="/">
+            <span className="bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text font-extrabold text-transparent">
+              Steals
             </span>
-          )}
-          <div className="flex flex-col gap-3 ml-[11.3rem] pt-4">
-            {!loading ? (
-              results.map((item: any) => (
-                <SearchResult
-                  loading={loading}
-                  title={item.title}
-                  description={item.description}
-                  link={item.link}
-                  price={item.price}
-                  priceRating={item.priceRating}
-                  type={item.type}
-                />
-              ))
-            ) : (
-              <>
-                <SearchResult loading={loading} />
-                <SearchResult loading={loading} />
-                <SearchResult loading={loading} />
-                <SearchResult loading={loading} />
-                <SearchResult loading={loading} />
-              </>
-            )}
-          </div>
-        </SkeletonTheme>
-      ) : (
-        <div className="h-screen flex">
-          <span className="m-auto font-bold text-[1.5rem]">
-            No results... Try again with a different query.
-          </span>
-        </div>
-      )}
-      ;
+            .com
+          </a>
+        </span>
+      </div>
+
+      <span className="mx-auto mt-20 font-bold text-[2rem]">Saved results</span>
+      <div className="mx-auto mt-4">
+        {savedResults.length == 0 && savedResults.map((item) => (
+          <SearchResult
+            loading={false}
+            title={item.title}
+            description={item.description}
+            link={item.link}
+            price={item.price}
+            priceRating={item.priceRating}
+            type={item.type}
+          />
+        ))}
+      </div>
     </div>
   );
 };
+
 function SearchResult(props: any) {
   async function saveItem() {
     var existingEntries = JSON.parse(localStorage.getItem("allEntries"));
@@ -163,16 +51,14 @@ function SearchResult(props: any) {
       title: props.title,
       desc: props.description,
       link: props.link,
-      price: props.price,
-      type: props.type,
     };
     existingEntries.push(entry);
     localStorage.setItem("allEntries", JSON.stringify(existingEntries));
   }
   return (
-    <div className="post m-2 p-3 shadow-lg shadow-black/30 rounded-xl h-[10rem] ">
-      <div className="left-col">
-        <a href={`${props.link || "https://google.com"}`}>
+    <a href={`${props.link || "https://google.com"}`}>
+      <div className="post m-2 p-3 shadow-lg shadow-black/30 rounded-xl h-[10rem] ">
+        <div className="left-col">
           <div className="avatar mt-2">
             {props.loading && (
               <Skeleton
@@ -190,36 +76,26 @@ function SearchResult(props: any) {
               style={{ display: props.loading ? "none" : undefined }}
             />
           </div>
-        </a>
 
-        <div className="user-name">
-          {props.loading ? (
-            <Skeleton width={70} />
-          ) : (
-            <span
-              className={`text-${
-                props.priceRating === "good"
-                  ? "green"
-                  : props.priceRating === "ok" || props.priceRating === "bad"
-                  ? "yellow"
-                  : "red"
-              }-500`}
-            >
-              ${props.price}
-            </span>
-          )}
+          <div className="user-name">
+            {props.loading ? (
+              <Skeleton width={70} />
+            ) : (
+              <span
+                className={`text-${
+                  props.priceRating === "good"
+                    ? "green"
+                    : props.priceRating === "ok" || props.priceRating === "bad"
+                    ? "yellow"
+                    : "red"
+                }-500`}
+              >
+                ${props.price}
+              </span>
+            )}
+          </div>
         </div>
-
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1 rounded"
-          onClick={saveItem}
-        >
-          Save
-        </button>
-      </div>
-
-      <div className="right-col">
-        <a href={`${props.link || "https://google.com"}`}>
+        <div className="right-col">
           <h3>
             {props.loading ? (
               <Skeleton />
@@ -230,10 +106,10 @@ function SearchResult(props: any) {
           <p className="line-clamp-4">
             {props.loading ? <Skeleton count={3} /> : <>{props.description}</>}
           </p>
-        </a>
+        </div>
       </div>
-    </div>
+    </a>
   );
 }
 
-export default Home;
+export default Saved;
