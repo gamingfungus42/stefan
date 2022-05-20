@@ -84,6 +84,7 @@ const Home = () => {
     <div className="bg-stone-800 text-white flex flex-col">
       <div className="flex justify-between shadow-lg shadow-black/20">
         <div className="flex p-4">
+          
           <span className="font-bold text-[2rem] mr-4">
             <a href="/">
               <span className="bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text font-extrabold text-transparent">
@@ -92,7 +93,7 @@ const Home = () => {
               .com
             </a>
           </span>
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="mx-auto">
             <div className="mt-1 relative rounded-md shadow-sm mx-auto">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -112,6 +113,11 @@ const Home = () => {
             </div>
           </form>
         </div>
+        <span className="my-auto">
+          <ArrowLink className="mr-8" href="/saved">
+            Saves
+          </ArrowLink>
+        </span>
       </div>
       {!(error || showError) ? (
         <SkeletonTheme borderRadius="2rem" duration={0.9}>

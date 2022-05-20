@@ -7,9 +7,11 @@ import ArrowLink from "@/components/interactive/links/ArrowLink";
 
 const Saved = () => {
   const [savedResults, setSavedResults] = useState([]);
+  const [loading, setLoading ] = useState(true)
 
   useEffect(() => {
     setSavedResults(JSON.parse(localStorage.getItem("allEntries")));
+    setLoading(false)
   }, []);
 
   return (
@@ -27,7 +29,7 @@ const Saved = () => {
 
       <span className="mx-auto mt-20 font-bold text-[2rem]">Saved results</span>
       <div className="mx-auto mt-4">
-        {savedResults.length == 0 && savedResults.map((item) => (
+        {loading && savedResults.map((item) => (
           <SearchResult
             loading={false}
             title={item.title}
